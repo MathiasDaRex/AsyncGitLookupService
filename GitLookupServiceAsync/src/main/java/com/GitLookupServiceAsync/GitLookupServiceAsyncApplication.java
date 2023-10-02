@@ -1,13 +1,31 @@
 package com.GitLookupServiceAsync;
 
+import java.util.concurrent.Executor;
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 @SpringBootApplication
+@EnableAsync
 public class GitLookupServiceAsyncApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(GitLookupServiceAsyncApplication.class, args);
+		// close the application context to shut down the custom ExecutorService
+		SpringApplication.run(GitLookupServiceAsyncApplication.class, args).close();
+	}
+	
+	@Bean
+	public Executor taskExecutor() {
+		ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+		executor.setCorePoolSize(2);
+		executor.setMaxPoolSize(2);
+		executor.setQueueCapacity(500);
+		executor.setThreadNamePrefix("GitHubLookup-");
+		executor.initialize();
+		return executor;
 	}
 
 }
